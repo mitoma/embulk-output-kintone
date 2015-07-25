@@ -1,8 +1,9 @@
 package org.embulk.output;
 
-import com.cybozu.kintone.database.Connection;
-import com.cybozu.kintone.database.Record;
-import com.cybozu.kintone.database.exception.DBException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.embulk.config.CommitReport;
 import org.embulk.output.KintoneOutputPlugin.PluginTask;
 import org.embulk.spi.Column;
@@ -12,8 +13,9 @@ import org.embulk.spi.PageReader;
 import org.embulk.spi.Schema;
 import org.embulk.spi.TransactionalPageOutput;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.cybozu.kintone.database.Connection;
+import com.cybozu.kintone.database.Record;
+import com.cybozu.kintone.database.exception.DBException;
 
 public class KintonePageOutput implements TransactionalPageOutput {
 
@@ -32,12 +34,13 @@ public class KintonePageOutput implements TransactionalPageOutput {
       insertPage(page);
       break;
     case UPDATE:
-      // TODO updatePage, upsertPage
+      updatePage(page);
+      break;
     case UPSERT:
-      // TODO updatePage, upsertPage
+      // TODO upsertPage
     default:
       throw new UnsupportedOperationException(
-          "kintone output plugin does not support update, upsert");
+          "kintone output plugin does not support upsert");
     }
   }
 
@@ -61,33 +64,11 @@ public class KintonePageOutput implements TransactionalPageOutput {
     return Exec.newCommitReport();
   }
 
-  private void insertPage(Page page) {
+  private void execute(Consumer<Connection> operation) {
     Connection conn = null;
     try {
-      conn = getConnection(task);
-
-      List<Record> records = new ArrayList<>();
-      pageReader.setPage(page);
-      KintoneColumnVisitor visitor = new KintoneColumnVisitor(pageReader,
-          task.getColumnOptions());
-      while (pageReader.nextRecord()) {
-        Record record = new Record();
-        visitor.setRecord(record);
-
-        for (Column column : pageReader.getSchema().getColumns()) {
-          column.visit(visitor);
-        }
-        records.add(record);
-        if (records.size() == 100) {
-          conn.insert(task.getAppId(), records);
-          records.clear();
-        }
-      }
-      if (records.size() > 0) {
-        conn.insert(task.getAppId(), records);
-      }
-    } catch (DBException e) {
-      throw new RuntimeException("kintone throw exception", e);
+      conn = new Connection(task.getDomain(), task.getApiToken());
+      operation.accept(conn);
     } finally {
       if (conn != null) {
         conn.close();
@@ -95,7 +76,59 @@ public class KintonePageOutput implements TransactionalPageOutput {
     }
   }
 
-  private Connection getConnection(PluginTask task) {
-    return new Connection(task.getDomain(), task.getApiToken());
+  private void insertPage(Page page) {
+    execute((conn) -> {
+      try {
+        List<Record> records = new ArrayList<>();
+        pageReader.setPage(page);
+        KintoneColumnVisitor visitor = new KintoneColumnVisitor(pageReader,
+            task.getColumnOptions());
+        while (pageReader.nextRecord()) {
+          Record record = new Record();
+          visitor.setRecord(record);
+          for (Column column : pageReader.getSchema().getColumns()) {
+            column.visit(visitor);
+          }
+          records.add(record);
+          if (records.size() == 100) {
+            conn.insert(task.getAppId(), records);
+            records.clear();
+          }
+        }
+        if (records.size() > 0) {
+          conn.insert(task.getAppId(), records);
+        }
+      } catch (DBException e) {
+        throw new RuntimeException("kintone throw exception", e);
+      }
+    });
+  }
+
+  private void updatePage(Page page) {
+    execute((conn) -> {
+      try {
+        List<Record> records = new ArrayList<>();
+        pageReader.setPage(page);
+        KintoneColumnVisitor visitor = new KintoneColumnVisitor(pageReader,
+            task.getColumnOptions());
+        while (pageReader.nextRecord()) {
+          Record record = new Record();
+          visitor.setRecord(record);
+          for (Column column : pageReader.getSchema().getColumns()) {
+            column.visit(visitor);
+          }
+          records.add(record);
+          if (records.size() == 100) {
+            conn.updateByRecords(task.getAppId(), records);
+            records.clear();
+          }
+        }
+        if (records.size() > 0) {
+          conn.updateByRecords(task.getAppId(), records);
+        }
+      } catch (DBException e) {
+        throw new RuntimeException("kintone throw exception", e);
+      }
+    });
   }
 }

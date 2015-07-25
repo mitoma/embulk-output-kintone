@@ -1,5 +1,7 @@
 package org.embulk.output;
 
+import static org.embulk.output.Mode.*;
+
 import org.embulk.config.CommitReport;
 import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
@@ -16,6 +18,26 @@ import java.util.List;
 import java.util.Map;
 
 public class KintoneOutputPlugin implements OutputPlugin {
+
+  public interface PluginTask extends Task {
+    @Config("domain")
+    public String getDomain();
+
+    @Config("app_id")
+    public long getAppId();
+
+    @Config("api_token")
+    public String getApiToken();
+
+    @Config("column_options")
+    @ConfigDefault("{}")
+    public Map<String, KintoneColumnOption> getColumnOptions();
+
+    @Config("mode")
+    @ConfigDefault("insert")
+    public Mode getMode();
+  }
+
   @Override
   public ConfigDiff transaction(ConfigSource config, Schema schema,
       int taskCount, OutputPlugin.Control control) {
@@ -44,25 +66,23 @@ public class KintoneOutputPlugin implements OutputPlugin {
   public TransactionalPageOutput open(TaskSource taskSource, Schema schema,
       int taskIndex) {
     PluginTask task = taskSource.loadTask(PluginTask.class);
+
+    // validation
+    if (task.getMode() == INSERT) {
+      if (task.getColumnOptions().values().stream()
+          .filter(KintoneColumnOption::getUpdateKey).count() != 0) {
+        throw new IllegalArgumentException(
+            "when mode is insert, require no update_key.");
+      }
+    } else {
+      if (task.getColumnOptions().values().stream()
+          .filter(KintoneColumnOption::getUpdateKey).count() != 1) {
+        throw new IllegalArgumentException(
+            "when mode is update/upsert, require one update_key.");
+      }
+    }
+
     return new KintonePageOutput(task, schema);
   }
 
-  public interface PluginTask extends Task {
-    @Config("domain")
-    public String getDomain();
-
-    @Config("app_id")
-    public long getAppId();
-
-    @Config("api_token")
-    public String getApiToken();
-
-    @Config("column_options")
-    @ConfigDefault("{}")
-    public Map<String, KintoneColumnOption> getColumnOptions();
-
-    @Config("mode")
-    @ConfigDefault("insert")
-    public Mode getMode();
-  }
 }
