@@ -1,5 +1,4 @@
 package org.embulk.output;
 
-public class TestKintoneOutputPlugin
-{
+public class TestKintoneOutputPlugin {
 }
