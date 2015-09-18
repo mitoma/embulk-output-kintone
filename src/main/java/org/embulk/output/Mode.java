@@ -6,29 +6,32 @@ import org.embulk.config.ConfigException;
 
 import java.util.Locale;
 
-public enum Mode {
+public enum Mode
+{
 
-  INSERT, UPDATE, UPSERT;
+    INSERT, UPDATE, UPSERT;
 
-  @JsonCreator
-  public static Mode fromString(String value) {
-    switch (value) {
-    case "insert":
-      return INSERT;
-    case "update":
-      return UPDATE;
-    case "upsert":
-      return UPSERT;
-    default:
-      throw new ConfigException(String.format(
-          "Unknown mode '%s'. Supported modes are insert, update, upsert",
-          value));
+    @JsonCreator
+    public static Mode fromString(String value)
+    {
+        switch (value) {
+            case "insert":
+                return INSERT;
+            case "update":
+                return UPDATE;
+            case "upsert":
+                return UPSERT;
+            default:
+                throw new ConfigException(String.format(
+                        "Unknown mode '%s'. Supported modes are insert, update, upsert",
+                        value));
+        }
     }
-  }
 
-  @JsonValue
-  @Override
-  public String toString() {
-    return name().toLowerCase(Locale.ENGLISH);
-  }
+    @JsonValue
+    @Override
+    public String toString()
+    {
+        return name().toLowerCase(Locale.ENGLISH);
+    }
 }
