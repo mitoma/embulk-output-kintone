@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.embulk.config.CommitReport;
+import org.embulk.config.TaskReport;
 import org.embulk.output.KintoneOutputPlugin.PluginTask;
 import org.embulk.spi.Column;
 import org.embulk.spi.Exec;
@@ -60,8 +60,8 @@ public class KintonePageOutput implements TransactionalPageOutput {
   }
 
   @Override
-  public CommitReport commit() {
-    return Exec.newCommitReport();
+  public TaskReport commit() {
+    return Exec.newTaskReport();
   }
 
   private void execute(Consumer<Connection> operation) {

@@ -2,7 +2,7 @@ package org.embulk.output;
 
 import static org.embulk.output.Mode.*;
 
-import org.embulk.config.CommitReport;
+import org.embulk.config.TaskReport;
 import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.config.ConfigDiff;
@@ -59,7 +59,7 @@ public class KintoneOutputPlugin implements OutputPlugin {
 
   @Override
   public void cleanup(TaskSource taskSource, Schema schema, int taskCount,
-      List<CommitReport> successCommitReports) {
+      List<TaskReport> successTaskReports) {
   }
 
   @Override
