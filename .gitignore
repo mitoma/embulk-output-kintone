@@ -10,3 +10,5 @@ bin/
 .project
 .classpath
 .settings
+
+src/test/resources/config.yml
