@@ -11,6 +11,7 @@ TODO: Developping now.
 - [ ] upsert mode.
 - [ ] multi selection, checkbox support.
 - [ ] resume, retry. etc...
+- [ ] publish gem.
 
 ## Overview
 
