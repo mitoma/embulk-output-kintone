@@ -6,7 +6,10 @@ import com.cybozu.kintone.database.Record;
 import org.embulk.spi.Column;
 import org.embulk.spi.ColumnVisitor;
 import org.embulk.spi.PageReader;
+import org.embulk.spi.time.Timestamp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 public class KintoneColumnVisitor
@@ -34,16 +37,14 @@ public class KintoneColumnVisitor
         if (value == null) {
             return;
         }
-
         KintoneColumnOption option = columnOptions.get(column.getName());
         if (option == null) {
             return;
         }
 
         FieldType fieldType = FieldType.valueOf(option.getType());
-
-        Field field = new Field(option.getFieldCode(), fieldType, value);
-        record.addField(column.getName(), field);
+        Field field = new Field(option.getFieldCode(), fieldType, String.valueOf(value));
+        record.addField(option.getFieldCode(), field);
     }
 
     @Override
@@ -73,6 +74,29 @@ public class KintoneColumnVisitor
     @Override
     public void timestampColumn(Column column)
     {
-        setValue(column, pageReader.getTimestamp(column));
+        Timestamp value = pageReader.getTimestamp(column);
+        if (value == null) {
+            return;
+        }
+        KintoneColumnOption option = columnOptions.get(column.getName());
+        if (option == null) {
+            return;
+        }
+
+        FieldType fieldType = FieldType.valueOf(option.getType());
+        Date date = new Date(value.toEpochMilli());
+
+        switch (fieldType) {
+            case DATE:
+                record.setDate(option.getFieldCode(), date);
+                break;
+            case DATETIME:
+                record.setDateTime(option.getFieldCode(), date);
+                break;
+            default:
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd\'T\'HH:mm:ss\'Z\'");
+                Field field = new Field(option.getFieldCode(), fieldType, format.format(date));
+                record.addField(option.getFieldCode(), field);
+        }
     }
 }

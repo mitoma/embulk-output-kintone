@@ -28,6 +28,7 @@ dependencies {
   compile files('javalib/kintone-sdk.jar')
 
   testCompile "junit:junit:4.+"
+  testCompile "org.embulk:embulk-standards:0.7.4"
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {

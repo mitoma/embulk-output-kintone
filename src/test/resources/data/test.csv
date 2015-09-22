@@ -1,0 +1,6 @@
+int_val,double_val,string_val,date_val,timestamp_val
+1,2.3,string_value1,2011-01-10,2015-5-1 12:12:12
+2,3.4,string_value2,2012-02-10,2015-5-2 12:12:12
+3,4.5,string_value3,2013-03-10,2015-5-3 12:12:12
+4,5.6,string_value4,2014-04-10,2015-5-4 12:12:12
+5,6.7,string_value5,2015-05-10,2015-5-5 12:12:12

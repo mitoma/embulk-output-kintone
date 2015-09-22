@@ -36,14 +36,14 @@ public class KintonePageOutput
             case INSERT:
                 insertPage(page);
                 break;
-            case UPDATE:
-                updatePage(page);
-                break;
-            case UPSERT:
-                // TODO upsertPage
+//            case UPDATE:
+//                updatePage(page);
+//                break;
+//            case UPSERT:
+//                // TODO upsertPage
             default:
                 throw new UnsupportedOperationException(
-                        "kintone output plugin does not support upsert");
+                        "kintone output plugin does not support update, upsert");
         }
     }
 

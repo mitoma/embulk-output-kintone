@@ -9,7 +9,7 @@ import java.util.Locale;
 public enum Mode
 {
 
-    INSERT, UPDATE, UPSERT;
+    INSERT;//, UPDATE, UPSERT;
 
     @JsonCreator
     public static Mode fromString(String value)
@@ -17,13 +17,13 @@ public enum Mode
         switch (value) {
             case "insert":
                 return INSERT;
-            case "update":
-                return UPDATE;
-            case "upsert":
-                return UPSERT;
+//            case "update":
+//                return UPDATE;
+//            case "upsert":
+//                return UPSERT;
             default:
                 throw new ConfigException(String.format(
-                        "Unknown mode '%s'. Supported modes are insert, update, upsert",
+                        "Unknown mode '%s'. Supported modes are insert",
                         value));
         }
     }

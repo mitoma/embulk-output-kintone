@@ -15,8 +15,6 @@ import org.embulk.spi.TransactionalPageOutput;
 import java.util.List;
 import java.util.Map;
 
-import static org.embulk.output.Mode.INSERT;
-
 public class KintoneOutputPlugin
         implements OutputPlugin
 {
@@ -47,10 +45,6 @@ public class KintoneOutputPlugin
             int taskCount, OutputPlugin.Control control)
     {
         PluginTask task = config.loadConfig(PluginTask.class);
-        // retryable (idempotent) output:
-        // return resume(task.dump(), schema, taskCount, control);
-
-        // non-retryable (non-idempotent) output:
         control.run(task.dump());
         return Exec.newConfigDiff();
     }
@@ -76,21 +70,27 @@ public class KintoneOutputPlugin
         PluginTask task = taskSource.loadTask(PluginTask.class);
 
         // validation
-        if (task.getMode() == INSERT) {
-            if (task.getColumnOptions().values().stream()
-                    .filter(KintoneColumnOption::getUpdateKey).count() != 0) {
+        switch (task.getMode()) {
+            case INSERT:
+                if (task.getColumnOptions().values().stream()
+                        .filter(KintoneColumnOption::getUpdateKey).count() != 0) {
+                    throw new IllegalArgumentException(
+                            "when mode is insert, require no update_key.");
+                }
+                break;
+//            case UPDATE:
+//                if (task.getColumnOptions().values().stream()
+//                        .filter(KintoneColumnOption::getUpdateKey).count() != 1) {
+//                    throw new IllegalArgumentException(
+//                            "when mode is update/upsert, require one update_key.");
+//                }
+//                break;
+//            case UPSERT:
+//                // TODO upsertPage
+            default:
                 throw new IllegalArgumentException(
-                        "when mode is insert, require no update_key.");
-            }
+                        "mode is insert only.");
         }
-        else {
-            if (task.getColumnOptions().values().stream()
-                    .filter(KintoneColumnOption::getUpdateKey).count() != 1) {
-                throw new IllegalArgumentException(
-                        "when mode is update/upsert, require one update_key.");
-            }
-        }
-
         return new KintonePageOutput(task, schema);
     }
 }
