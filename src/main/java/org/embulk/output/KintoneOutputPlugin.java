@@ -12,6 +12,7 @@ import org.embulk.spi.OutputPlugin;
 import org.embulk.spi.Schema;
 import org.embulk.spi.TransactionalPageOutput;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -72,10 +73,12 @@ public class KintoneOutputPlugin
         // validation
         switch (task.getMode()) {
             case INSERT:
-                if (task.getColumnOptions().values().stream()
-                        .filter(KintoneColumnOption::getUpdateKey).count() != 0) {
-                    throw new IllegalArgumentException(
-                            "when mode is insert, require no update_key.");
+                Collection<KintoneColumnOption> options = task.getColumnOptions().values();
+                for (KintoneColumnOption option : options) {
+                    if (option.getUpdateKey()) {
+                        throw new IllegalArgumentException(
+                                "when mode is insert, require no update_key.");
+                    }
                 }
                 break;
 //            case UPDATE:
