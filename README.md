@@ -4,14 +4,14 @@ Kintone output plugins for Embulk loads records to kintone. ( https://www.kinton
 
 TODO: Developping now.
 
-DONE: NUMBER, SINGLE_LINE_TEXT, DATE, DATETIME support.
-DONE: insert mode.
-
-TODO: documentation, testing.
-TODO: update mode.
-TODO: upsert mode.
-TODO: multi selection, checkbox support.
-TODO: resume, retry.
+- [x] insert mode.
+- [x] NUMBER, SINGLE_LINE_TEXT, DATE, DATETIME support.
+- [ ] documentation, testing.
+- [ ] update mode.
+- [ ] upsert mode.
+- [ ] multi selection, checkbox support.
+- [ ] resume, retry. etc...
+- [ ] publish gem.
 
 ## Overview
 
