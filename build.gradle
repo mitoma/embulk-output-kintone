@@ -21,14 +21,14 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-  compile "org.embulk:embulk-core:0.7.5"
-  provided "org.embulk:embulk-core:0.7.5"
+  compile "org.embulk:embulk-core:0.7.7"
+  provided "org.embulk:embulk-core:0.7.7"
   // compile "YOUR_JAR_DEPENDENCY_GROUP:YOUR_JAR_DEPENDENCY_MODULE:YOUR_JAR_DEPENDENCY_VERSION"
   compile 'com.google.code.gson:gson:2.3.1'
   compile files('javalib/kintone-sdk.jar')
 
   testCompile "junit:junit:4.+"
-  testCompile "org.embulk:embulk-standards:0.7.5"
+  testCompile "org.embulk:embulk-standards:0.7.7"
 }
 
 task classpath(type: Copy, dependsOn: ["jar"]) {
